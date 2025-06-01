@@ -1,11 +1,11 @@
 import random
-from graphic_card import GraphicCard
+from app_store import AppStore
 from abc import ABC, abstractmethod
 import uuid
 from utils.logger import logger
 
 class BaseAgent(ABC):
-    def __init__(self, store: GraphicCard, balance: float, card_possession: int = 0):
+    def __init__(self, store: AppStore, balance: float, card_possession: int = 0):
         self._store = store
         self._balance = balance
         self._card_possession = card_possession
@@ -37,7 +37,7 @@ class BaseAgent(ABC):
         chosenAction()
 
     def can_buy(self):
-        return self._balance >= self._store.price
+        return self._balance >= self._store.get_graphic_card_price()
 
     def can_sell(self):
         return self._card_possession >= 1
@@ -45,22 +45,22 @@ class BaseAgent(ABC):
     def buy(self):
         if self.can_buy():
             print("ID:", self.id, "; AgentType:Agent; Action: Buy")
-            self._store.buy()
-            self._balance -= self._store.price
+            self._store.buy_graphic_card()
+            self._balance -= self._store.get_graphic_card_price()
             self._card_possession += 1
         else:
             print(
                 "The graphic card is not affordable. Balance:",
                 self._balance,
                 "Price Graphic Card:",
-                self._store.price,
+                self._store.get_graphic_card_price(),
             )
         return self
 
     def sell(self):
         if self.can_sell():
-            self._store.sell()
-            self._balance += self._store.price
+            self._store.sell_graphic_card()
+            self._balance += self._store.get_graphic_card_price()
             self._card_possession -= 1
             print("ID:", self.id, ";AgentType:Agent;Action: Sell")
         else:
@@ -111,9 +111,9 @@ class AgentAntiTrend(BaseAgent):
 class AgentCustom(BaseAgent):
     def evaluation_possible_options(self):
         percentage_fluctuation = self._store.get_total_fluctuation()
-        print("percentage_fluctuation", percentage_fluctuation)
+
         # Todo: Refactor this logic
-        if percentage_fluctuation <= 1:
-            return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
-        else:
+        if percentage_fluctuation >= 1:
             return {"options": [self.sell, self.nothing], "weights": [0.75, 0.25]}
+        else:
+            return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}

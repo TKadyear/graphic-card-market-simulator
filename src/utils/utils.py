@@ -1,6 +1,5 @@
-from agents import Agent, AgentAntiTrend, AgentCustom, AgentTrend
-from graphic_card import GraphicCard
-
+from agents import Agent, AgentAntiTrend, AgentCustom, AgentTrend, BaseAgent
+from app_store import AppStore
 
 def create_agents(
     initial_balance: float,
@@ -8,8 +7,8 @@ def create_agents(
     number_trend_agents: int,
     number_antitrend_agents: int,
     number_custom_agents: int,
-    store: GraphicCard,
-) -> list[Agent | AgentTrend | AgentAntiTrend | AgentCustom]:
+    store: AppStore,
+) -> list[BaseAgent]:
     initial_balance = 1000
     agents = []
     agents += [Agent(store, initial_balance) for _ in range(number_random_agents)]

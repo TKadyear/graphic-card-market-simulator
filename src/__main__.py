@@ -1,7 +1,10 @@
+from agents import BaseAgent
 from graphic_card import GraphicCard, GraphicCardConfig
+from app_store import AppStore
 from utils.utils import create_agents
-from market import Market
+from market import MarketSimulation
 from utils.logger import logger
+
 config = {
     "graphic_card": {"units": 100000, "price": 200, "percentage_fluctuation": 0.5},
     "agents": {
@@ -11,19 +14,28 @@ config = {
         "number_trend_agents": 24,
         "number_custom_agents": 1,
     },
-    "iterations": 1000
+    "total_iterations": 1000,
 }
 
 
 class Setup:
-    def __init__(self, graphic_card: GraphicCardConfig, agents: dict, iterations: int):
-        self.graphic_card = GraphicCard.from_config(graphic_card)
-        self.config_agents = {**agents, "store": self.graphic_card}
-        self.agents = create_agents(**self.config_agents)
-        self.market = Market(self.graphic_card, iterations, self.agents)
+    __graphic_card: GraphicCard = None
+    __store: AppStore = None
+    __agents: list[BaseAgent] = None
+    __market_simulation: MarketSimulation = None
+
+    def __init__(
+        self, graphic_card: GraphicCardConfig, agents: dict, total_iterations: int
+    ):
+        self.__graphic_card = GraphicCard.from_config(graphic_card)
+        self.__store = AppStore(self.__graphic_card, total_iterations)
+        config_agents = {**agents, "store": self.__store}
+        self.__agents = create_agents(**config_agents)
+        self.__market_simulation = MarketSimulation(self.__store, self.__agents)
 
     def start(self):
-        self.market.start()
+        self.__market_simulation.start()
+
 
 logger.info("---Configuration Simulation---")
 logger.info(config)

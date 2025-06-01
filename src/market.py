@@ -1,23 +1,25 @@
 from iterator import RandomOrderIterator
-from agents import Agent, AgentTrend, AgentAntiTrend
-from graphic_card import GraphicCard
+from agents import BaseAgent
+from app_store import AppStore
 
 
-class Market:
+class MarketSimulation:
+    __store: AppStore = None
+    __agents: BaseAgent =None
+    
     def __init__(
         self,
-        product: GraphicCard,
-        iterations: int,
-        agents: list[Agent | AgentAntiTrend | AgentTrend],
+        store: AppStore,
+        agents: list[BaseAgent],
     ):
-        self.__product = product
-        self._iterations = iterations
-        self._agents = agents
+        self.__store = store
+        self.__agents = agents
 
     def start(self):
-        for iteration in range(self._iterations):
-            print("Iteration", iteration + 1)
-            marketOrder = RandomOrderIterator(self._agents)
+        for iteration in range(self.__store.total_iterations):
+            self.__store.iteration = iteration + 1
+            print("Iteration", self.__store.iteration)
+            marketOrder = RandomOrderIterator(self.__agents)
             for agent in marketOrder:
                 agent.act()
-            self.__product.last_price = self.__product.price
+            self.__store.save_last_iteration_price()
