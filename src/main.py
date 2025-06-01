@@ -1,68 +1,26 @@
-import random
+from graphic_card import GraphicCard
+from utils.utils import create_agents
+from market import Market
 
+number_agents = 1
+number_agents_trend = 1
+number_agents_antitrend = 1
+# number_agents = 51
+# number_agents_trend = 24
+# number_agents_antitrend = 24
+initial_price_graphic_card = 200
+initial_units_graphic_card = 100000
+days = 10
 
-class GraphicCard:
-    def __init__(self, price: float, units: int, price_fluctuation: float):
-        self.price = price
-        self.units = units
-        self.price_fluctuation = price_fluctuation
-
-    def calc_price_fluctuation(self):
-        return (self.price * 0.5) / 100
-
-    def buy(self):
-        self.units -= 1
-        self.price += self.calc_price_fluctuation()
-        return self
-
-    def sell(self):
-        self.units += 1
-        self.price -= self.calc_price_fluctuation()
-        return self
-
-
-card = GraphicCard(200, 100000, 0.5)
-card.buy()
-print(card.price)
-print(card.units)
-
-
-class Agent:
-    def __init__(self, balance: float, card_possession: int = 0):
-        self.balance = balance
-        self.card_possession = card_possession
-
-    def behaviour(self, price_graphic_card: float):
-        options = [
-            (self.buy, True), 
-            (self.sell, True), 
-            (self.nothing, False)
-            ]
-        weights = [0.33, 0.33, 0.33]
-        decision, need_args = random.choices(options, weights=weights, k=1)[0]
-        
-        if need_args:
-            decision(price_graphic_card)
-        else:
-            decision()
-        print("Behavior WIP")
-
-    def buy(self, price_graphic_card: float):
-        print("Action: Buy")
-        self.balance -= price_graphic_card
-        self.card_possession += 1
-        return self
-
-    def sell(self, price_graphic_card: float):
-        self.balance += price_graphic_card
-        self.card_possession -= 1
-        print("Action: Sell")
-        return self
-
-    def nothing(self):
-        print("Action: Nothing")
-        return self
-
-
-agent = Agent(1000, 0)
-agent.behaviour(200)
+price_fluctuation_graphic_card = 0.5
+card = GraphicCard(
+    initial_price_graphic_card,
+    initial_units_graphic_card,
+    price_fluctuation_graphic_card,
+)
+market = Market(
+    card,
+    days,
+    create_agents(number_agents, number_agents_trend, number_agents_antitrend),
+)
+market.startMarket()
