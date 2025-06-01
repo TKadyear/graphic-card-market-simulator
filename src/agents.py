@@ -1,104 +1,110 @@
 import random
 
+from graphic_card import GraphicCard
+from abc import ABC, abstractmethod
+import uuid
 
-class Agent:
-    def __init__(self, balance: float, card_possession: int = 0):
+
+class BaseAgent(ABC):
+    def __init__(self, store: GraphicCard, balance: float, card_possession: int = 0):
+        self.store = store
         self.balance = balance
         self.card_possession = card_possession
+        self.id = str(uuid.uuid4())
 
-    def evaluation_possible_options(
-        self, 
-    ):
-        options = [(self.buy, True), (self.sell, True), (self.nothing, False)]
-        weights = [0.33, 0.33, 0.33]
-        return {
-                "options": options,
-                "weights": weights
-        }
+    @abstractmethod
+    def evaluation_possible_options(self):
+        pass
+
+# Todo: Remove this method after adding logger to all classes
     def hello(self):
-        print("Hello Agent")
-    def behaviour(self, price_graphic_card: float):
-        decision =self.evaluation_possible_options()
-        chosenAction, need_args = random.choices(decision["options"], weights=decision["weights"], k=1)[0]
+        print("Hello Agent",self.id)
 
-        if need_args:
-            chosenAction(price_graphic_card)
+    def act(self):
+        decision = self.evaluation_possible_options()
+        chosenAction = random.choices(
+            decision["options"], weights=decision["weights"], k=1
+        )[0]
+        chosenAction()
+
+    def can_buy(self):
+        return self.balance >= self.store.price
+
+    def can_sell(self):
+        return self.card_possession >= 1
+
+    def buy(self):
+        if self.can_buy():
+            print("ID:",self.id,"; AgentType:Agent; Action: Buy")
+            self.store.buy()
+            self.balance -= self.store.price
+            self.card_possession += 1
         else:
-            chosenAction()
-
-    def buy(self, price_graphic_card: float):
-        print("AgentType:Agent;Action: Buy")
-        self.balance -= price_graphic_card
-        self.card_possession += 1
+            print("The graphic card is not affordable. Balance:", self.balance, "Price Graphic Card:",self.store.price )
         return self
 
-    def sell(self, price_graphic_card: float):
-        self.balance += price_graphic_card
-        self.card_possession -= 1
-        print("AgentType:Agent;Action: Sell")
+    def sell(self):
+        if self.can_sell():
+            self.store.sell()
+            self.balance += self.store.price
+            self.card_possession -= 1
+            print("ID:",self.id,";AgentType:Agent;Action: Sell")
+        else:
+            print("The agent does not have any graphics cards to sell.")
+
         return self
 
     def nothing(self):
-        print("AgentType:Agent;Action: Nothing")
+        print("ID:",self.id,";AgentType:Agent;Action: Nothing")
         return self
 
 
-class AgentTrend:
-    def __init__(self, balance: float, card_possession: int = 0):
-        self.balance = balance
-        self.card_possession = card_possession
+class Agent(BaseAgent):
+    def evaluation_possible_options(
+        self,
+    ):
+        options = [self.buy, self.sell, self.nothing]
+        weights = [0.33, 0.33, 0.33]
+        return {"options": options, "weights": weights}
 
-    def hello(self):
-        print("Hello Agent Trend")
+
+class AgentTrend(BaseAgent):
     def evaluation_possible_options(
         self, price_graphic_card: float, last_iteration_price: float
     ):
         percentage_fluctuation = (price_graphic_card * 100) / last_iteration_price - 100
         print("percentage_fluctuation", percentage_fluctuation)
-        if(percentage_fluctuation >= 1):
+        if percentage_fluctuation >= 1:
             return {
-                "options": [(self.buy, True),(self.nothing, False)],
-                "weights": [0.75,0.25]
+                "options": [(self.buy, True), (self.nothing, False)],
+                "weights": [0.75, 0.25],
             }
         else:
             return {
-                "options": [(self.sell, True),(self.nothing, False)],
-                "weights": [0.75,0.25]
+                "options": [(self.sell, True), (self.nothing, False)],
+                "weights": [0.75, 0.25],
             }
 
 
-    def behaviour(self, price_graphic_card: float, last_iteration_price: float):
-        decision =self.evaluation_possible_options(price_graphic_card, last_iteration_price)
-        chosenAction, need_args = random.choices(decision["options"], weights=decision["weights"], k=1)[0]
-
-        if need_args:
-            chosenAction(price_graphic_card)
+class AgentAntiTrend(BaseAgent):
+    def evaluation_possible_options(
+        self, price_graphic_card: float, last_iteration_price: float
+    ):
+        percentage_fluctuation = (price_graphic_card * 100) / last_iteration_price - 100
+        print("percentage_fluctuation", percentage_fluctuation)
+        if percentage_fluctuation <= 1:
+            return {
+                "options": [(self.buy, True), (self.nothing, False)],
+                "weights": [0.75, 0.25],
+            }
         else:
-            chosenAction()
+            return {
+                "options": [(self.sell, True), (self.nothing, False)],
+                "weights": [0.75, 0.25],
+            }
 
-    def buy(self, price_graphic_card: float):
-        print("AgentType:AgentTrend; Action: Buy")
-        self.balance -= price_graphic_card
-        self.card_possession += 1
-        return self
 
-    def sell(self, price_graphic_card: float):
-        self.balance += price_graphic_card
-        self.card_possession -= 1
-        print("AgentType:AgentTrend; Action: Sell")
-        return self
-
-    def nothing(self):
-        print("AgentType:AgentTrend; Action: Nothing")
-        return self
-
-class AgentAntiTrend:
-    def __init__(self, balance: float, card_possession: int = 0):
-        self.balance = balance
-        self.card_possession = card_possession
-
-    def hello(self):
-        print("Hello Agent AntiTrend")
+class AgentCustom(BaseAgent):
     def evaluation_possible_options(
         self, price_graphic_card: float, last_iteration_price: float
     ):
@@ -114,29 +120,3 @@ class AgentAntiTrend:
                 "options": [(self.sell, True),(self.nothing, False)],
                 "weights": [0.75,0.25]
             }
-
-
-    def behaviour(self, price_graphic_card: float, last_iteration_price: float):
-        decision =self.evaluation_possible_options(price_graphic_card, last_iteration_price)
-        chosenAction, need_args = random.choices(decision["options"], weights=decision["weights"], k=1)[0]
-
-        if need_args:
-            chosenAction(price_graphic_card)
-        else:
-            chosenAction()
-
-    def buy(self, price_graphic_card: float):
-        print("AgentType:AgentAntiTrend; Action: Buy")
-        self.balance -= price_graphic_card
-        self.card_possession += 1
-        return self
-
-    def sell(self, price_graphic_card: float):
-        self.balance += price_graphic_card
-        self.card_possession -= 1
-        print("AgentType:AgentAntiTrend; Action: Sell")
-        return self
-
-    def nothing(self):
-        print("AgentType:AgentAntiTrend; Action: Nothing")
-        return self

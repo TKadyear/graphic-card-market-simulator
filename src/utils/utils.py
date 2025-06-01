@@ -1,14 +1,21 @@
-from agents import Agent, AgentAntiTrend, AgentTrend
+from agents import Agent, AgentAntiTrend, AgentCustom, AgentTrend
+from graphic_card import GraphicCard
 
 
 def create_agents(
-    numberAgents: int, numberAgentsTrend: int, numberAgentsAntiTrends: int
-) -> list[Agent | AgentTrend | AgentAntiTrend]:
-    print(numberAgents, numberAgentsAntiTrends, numberAgentsTrend)
-    initial_balance=1000
-    initial_cards=0
+    initial_balance: float,
+    number_random_agents: int,
+    number_trend_agents: int,
+    number_antitrend_agents: int,
+    number_custom_agents: int,
+    store: GraphicCard,
+) -> list[Agent | AgentTrend | AgentAntiTrend | AgentCustom]:
+    initial_balance = 1000
     agents = []
-    agents += [Agent(initial_balance,initial_cards) for _ in range(numberAgents)]
-    agents += [AgentTrend(initial_balance,initial_cards) for _ in range(numberAgents)]
-    agents += [AgentAntiTrend(initial_balance,initial_cards) for _ in range(numberAgents)]
+    agents += [Agent(store, initial_balance) for _ in range(number_random_agents)]
+    agents += [AgentTrend(store, initial_balance) for _ in range(number_trend_agents)]
+    agents += [
+        AgentAntiTrend(store, initial_balance) for _ in range(number_antitrend_agents)
+    ]
+    agents += [AgentCustom(store, initial_balance) for _ in range(number_custom_agents)]
     return agents

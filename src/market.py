@@ -12,10 +12,11 @@ class Market:
         self.product = product
         self.days = days
         self.agents = agents
-
-    def startMarket(self):
+# Last Price and turn pass from here
+    def start(self):
         for day in range(self.days):
             print("Day", day + 1)
             marketOrder = RandomOrderIterator(self.agents)
             for agent in marketOrder:
                 agent.hello()
+                # agent.act()
