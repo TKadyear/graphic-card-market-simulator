@@ -2,7 +2,7 @@ import random
 from graphic_card import GraphicCard
 from abc import ABC, abstractmethod
 import uuid
-
+from utils.logger import logger
 
 class BaseAgent(ABC):
     def __init__(self, store: GraphicCard, balance: float, card_possession: int = 0):
@@ -26,9 +26,10 @@ class BaseAgent(ABC):
 
     # Todo: Remove this method after adding logger to all classes
     def hello(self):
-        print("Hello Agent", self.id)
+        logger.info("Hello Agent")
 
     def act(self):
+        logger.info("action")
         decision = self.evaluation_possible_options()
         chosenAction = random.choices(
             decision["options"], weights=decision["weights"], k=1

@@ -1,7 +1,7 @@
 from graphic_card import GraphicCard, GraphicCardConfig
 from utils.utils import create_agents
 from market import Market
-
+from utils.logger import logger
 config = {
     "graphic_card": {"units": 100000, "price": 200, "percentage_fluctuation": 0.5},
     "agents": {
@@ -25,7 +25,9 @@ class Setup:
     def start(self):
         self.market.start()
 
-
+logger.info("---Configuration Simulation---")
+logger.info(config)
 setup = Setup(**config)
 
+logger.info("Start Simulation")
 setup.start()
