@@ -55,7 +55,6 @@ class BaseAgent(ABC):
             logger.info(
                 f"Agent ID: {self.id}; Action: Buy; Result: The graphic card is not affordable; Price Card: {self._store.get_graphic_card_price()}; Balance: {self._balance}"
             )
-        return self
 
     def sell(self):
         if self.can_sell():
@@ -70,11 +69,8 @@ class BaseAgent(ABC):
                 f"Agent ID: {self.id}; Action: Sell; Result: The agent does not have any graphics cards to sell."
             )
 
-        return self
-
     def nothing(self):
         logger.info(f"Agent ID: {self.id}; Action: Nothing")
-        return self
 
 
 class Agent(BaseAgent):
@@ -121,6 +117,7 @@ class AgentCustom(BaseAgent):
 
         weight_progress = 0.2
         weight_fluctuation = 0.8
+        
         main_action_probability = (impact_fluctuation * weight_fluctuation) + (
             progress * weight_progress
         )
