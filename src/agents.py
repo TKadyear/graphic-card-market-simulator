@@ -94,7 +94,7 @@ class AgentTrend(BaseAgent):
         else:
             return {
                 "options": [self.sell, self.nothing],
-                "weights": [0.75, 0.25],
+                "weights": [0.2, 0.8],
             }
 
 
@@ -105,13 +105,14 @@ class AgentAntiTrend(BaseAgent):
         if percentage_fluctuation <= 1:
             return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
         else:
-            return {"options": [self.sell, self.nothing], "weights": [0.75, 0.25]}
+            return {"options": [self.sell, self.nothing], "weights": [0.2, 0.8]}
 
 
 class AgentCustom(BaseAgent):
     def evaluation_possible_options(self):
         percentage_fluctuation = self._store.get_total_fluctuation()
         print("percentage_fluctuation", percentage_fluctuation)
+        # Todo: Refactor this logic
         if percentage_fluctuation <= 1:
             return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
         else:
