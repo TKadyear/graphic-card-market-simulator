@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import uuid
 from utils.logger import logger
 
+
 class BaseAgent(ABC):
     def __init__(self, store: AppStore, balance: float, card_possession: int = 0):
         self._store = store
@@ -15,14 +16,19 @@ class BaseAgent(ABC):
     @abstractmethod
     def evaluation_possible_options(self):
         pass
-    
+
     @property
     def turn(self):
         return self._turn
-    
+
     @turn.setter
     def turn(self, value: int):
         self._turn = value
+
+    def show_status(self):
+        logger.info(
+            f"Agent Type: {self.__class__.__name__}; Agent ID: {self.id}; Balance: {self._balance}; Graphic Cards: {self._card_possession}"
+        )
 
     def act(self):
         decision = self.evaluation_possible_options()
@@ -42,9 +48,13 @@ class BaseAgent(ABC):
             self._store.buy_graphic_card()
             self._balance -= self._store.get_graphic_card_price()
             self._card_possession += 1
-            logger.info(f"Agent ID: {self.id}; Action: Buy; Cards: {self._card_possession}; Balance: {self._balance}")
+            logger.info(
+                f"Agent ID: {self.id}; Action: Buy; Result:OK; Cards: {self._card_possession}; Balance: {self._balance}"
+            )
         else:
-            logger.info(f"Agent ID: {self.id}; Action: Buy; Result: The graphic card is not affordable; Price Card: {self._store.get_graphic_card_price()}; Balance: {self._balance}")
+            logger.info(
+                f"Agent ID: {self.id}; Action: Buy; Result: The graphic card is not affordable; Price Card: {self._store.get_graphic_card_price()}; Balance: {self._balance}"
+            )
         return self
 
     def sell(self):
@@ -52,9 +62,13 @@ class BaseAgent(ABC):
             self._store.sell_graphic_card()
             self._balance += self._store.get_graphic_card_price()
             self._card_possession -= 1
-            logger.info(f"Agent ID: {self.id}; Action: Sell; Cards: {self._card_possession}; Balance: {self._balance}")
+            logger.info(
+                f"Agent ID: {self.id}; Action: Sell; Result:OK; Cards: {self._card_possession}; Balance: {self._balance}"
+            )
         else:
-            logger.info(f"Agent ID: {self.id}; The agent does not have any graphics cards to sell.")
+            logger.info(
+                f"Agent ID: {self.id}; Action: Sell; Result: The agent does not have any graphics cards to sell."
+            )
 
         return self
 
@@ -99,9 +113,30 @@ class AgentAntiTrend(BaseAgent):
 class AgentCustom(BaseAgent):
     def evaluation_possible_options(self):
         percentage_fluctuation = self._store.get_total_fluctuation()
+        progress = self._store.iteration / self._store.total_iterations
+        threshold_fluctuation = 5
+        impact_fluctuation = min(
+            abs(percentage_fluctuation) / threshold_fluctuation, 1.0
+        )
 
-        # Todo: Refactor this logic
+        weight_progress = 0.2
+        weight_fluctuation = 0.8
+        main_action_probability = (impact_fluctuation * weight_fluctuation) + (
+            progress * weight_progress
+        )
+        remaining_probability = 1 - main_action_probability
+        if self._store.iteration >= 990:
+            return {
+                "options": [self.sell, self.nothing],
+                "weights": [main_action_probability, remaining_probability],
+            }
         if percentage_fluctuation >= 1:
-            return {"options": [self.sell, self.nothing], "weights": [0.75, 0.25]}
+            return {
+                "options": [self.sell, self.nothing],
+                "weights": [main_action_probability, remaining_probability],
+            }
         else:
-            return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
+            return {
+                "options": [self.buy, self.nothing],
+                "weights": [main_action_probability, remaining_probability],
+            }
