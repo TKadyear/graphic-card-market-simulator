@@ -7,16 +7,16 @@ class Market:
     def __init__(
         self,
         product: GraphicCard,
-        days: int,
+        iterations: int,
         agents: list[Agent | AgentAntiTrend | AgentTrend],
     ):
         self.__product = product
-        self._days = days
+        self._iterations = iterations
         self._agents = agents
 
     def start(self):
-        for day in range(self._days):
-            print("Day", day + 1)
+        for iteration in range(self._iterations):
+            print("Iteration", iteration + 1)
             marketOrder = RandomOrderIterator(self._agents)
             for agent in marketOrder:
                 agent.act()

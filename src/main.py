@@ -11,16 +11,16 @@ config = {
         "number_trend_agents": 24,
         "number_custom_agents": 1,
     },
-    "days": 1000
+    "iterations": 1000
 }
 
 
 class Setup:
-    def __init__(self, graphic_card: GraphicCardConfig, agents: dict, days: int):
+    def __init__(self, graphic_card: GraphicCardConfig, agents: dict, iterations: int):
         self.graphic_card = GraphicCard.from_config(graphic_card)
         self.config_agents = {**agents, "store": self.graphic_card}
         self.agents = create_agents(**self.config_agents)
-        self.market = Market(self.graphic_card, days, self.agents)
+        self.market = Market(self.graphic_card, iterations, self.agents)
 
     def start(self):
         self.market.start()
