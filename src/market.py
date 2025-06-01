@@ -19,6 +19,5 @@ class Market:
             print("Day", day + 1)
             marketOrder = RandomOrderIterator(self._agents)
             for agent in marketOrder:
-                agent.hello()
-                # agent.act()
+                agent.act()
             self.__product.last_price = self.__product.price

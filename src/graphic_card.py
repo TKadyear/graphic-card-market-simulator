@@ -41,12 +41,11 @@ class GraphicCard:
         return (self._price * self._percentage_fluctuation * amount) / 100
 
     def buy(self, amount: int = 1):
-        # Add logic when there is no more graphic cards
         self._units -= amount
         self._price += self._calc_price_fluctuation(amount)
         return self
 
     def sell(self, amount: int = 1):
         self._units += amount
-        self._price -= self._calc_price_fluctuation()
+        self._price -= self._calc_price_fluctuation(amount)
         return self

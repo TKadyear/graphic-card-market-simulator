@@ -6,7 +6,7 @@ import uuid
 
 class BaseAgent(ABC):
     def __init__(self, store: GraphicCard, balance: float, card_possession: int = 0):
-        self.__store = store
+        self._store = store
         self._balance = balance
         self._card_possession = card_possession
         self.id = str(uuid.uuid4())
@@ -36,7 +36,7 @@ class BaseAgent(ABC):
         chosenAction()
 
     def can_buy(self):
-        return self._balance >= self.__store.price
+        return self._balance >= self._store.price
 
     def can_sell(self):
         return self._card_possession >= 1
@@ -44,26 +44,26 @@ class BaseAgent(ABC):
     def buy(self):
         if self.can_buy():
             print("ID:", self.id, "; AgentType:Agent; Action: Buy")
-            self.__store.buy()
-            self._balance -= self.__store.price
+            self._store.buy()
+            self._balance -= self._store.price
             self._card_possession += 1
         else:
             print(
                 "The graphic card is not affordable. Balance:",
-                self.balance,
+                self._balance,
                 "Price Graphic Card:",
-                self.__store.price,
+                self._store.price,
             )
         return self
 
     def sell(self):
         if self.can_sell():
-            self.__store.sell()
-            self._balance += self.__store.price
+            self._store.sell()
+            self._balance += self._store.price
             self._card_possession -= 1
             print("ID:", self.id, ";AgentType:Agent;Action: Sell")
         else:
-            print("The agent does not have any graphics cards to sell.")
+            print("ID:", self.id,"The agent does not have any graphics cards to sell.")
 
         return self
 
@@ -83,7 +83,7 @@ class Agent(BaseAgent):
 
 class AgentTrend(BaseAgent):
     def evaluation_possible_options(self):
-        percentage_fluctuation = self.__store.get_total_fluctuation()
+        percentage_fluctuation = self._store.get_total_fluctuation()
         print("percentage_fluctuation", percentage_fluctuation)
         if percentage_fluctuation >= 1:
             return {
@@ -99,7 +99,7 @@ class AgentTrend(BaseAgent):
 
 class AgentAntiTrend(BaseAgent):
     def evaluation_possible_options(self):
-        percentage_fluctuation = self.__store.get_total_fluctuation()
+        percentage_fluctuation = self._store.get_total_fluctuation()
         print("percentage_fluctuation", percentage_fluctuation)
         if percentage_fluctuation <= 1:
             return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
@@ -109,7 +109,7 @@ class AgentAntiTrend(BaseAgent):
 
 class AgentCustom(BaseAgent):
     def evaluation_possible_options(self):
-        percentage_fluctuation = self.__store.get_total_fluctuation()
+        percentage_fluctuation = self._store.get_total_fluctuation()
         print("percentage_fluctuation", percentage_fluctuation)
         if percentage_fluctuation <= 1:
             return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
