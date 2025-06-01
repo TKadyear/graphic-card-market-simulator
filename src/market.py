@@ -1,7 +1,7 @@
 from iterator import RandomOrderIterator
 from agents import BaseAgent
 from app_store import AppStore
-
+from utils.logger import logger
 
 class MarketSimulation:
     __store: AppStore = None
@@ -18,7 +18,7 @@ class MarketSimulation:
     def start(self):
         for iteration in range(self.__store.total_iterations):
             self.__store.iteration = iteration + 1
-            print("Iteration", self.__store.iteration)
+            logger.info(f"----Iteration {self.__store.iteration} ----")
             marketOrder = RandomOrderIterator(self.__agents)
             for agent in marketOrder:
                 agent.act()

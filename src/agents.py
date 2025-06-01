@@ -24,12 +24,7 @@ class BaseAgent(ABC):
     def turn(self, value: int):
         self._turn = value
 
-    # Todo: Remove this method after adding logger to all classes
-    def hello(self):
-        logger.info("Hello Agent")
-
     def act(self):
-        logger.info("action")
         decision = self.evaluation_possible_options()
         chosenAction = random.choices(
             decision["options"], weights=decision["weights"], k=1
@@ -44,17 +39,12 @@ class BaseAgent(ABC):
 
     def buy(self):
         if self.can_buy():
-            print("ID:", self.id, "; AgentType:Agent; Action: Buy")
             self._store.buy_graphic_card()
             self._balance -= self._store.get_graphic_card_price()
             self._card_possession += 1
+            logger.info(f"Agent ID: {self.id}; Action: Buy; Cards: {self._card_possession}; Balance: {self._balance}")
         else:
-            print(
-                "The graphic card is not affordable. Balance:",
-                self._balance,
-                "Price Graphic Card:",
-                self._store.get_graphic_card_price(),
-            )
+            logger.info(f"Agent ID: {self.id}; Action: Buy; Result: The graphic card is not affordable; Price Card: {self._store.get_graphic_card_price()}; Balance: {self._balance}")
         return self
 
     def sell(self):
@@ -62,14 +52,14 @@ class BaseAgent(ABC):
             self._store.sell_graphic_card()
             self._balance += self._store.get_graphic_card_price()
             self._card_possession -= 1
-            print("ID:", self.id, ";AgentType:Agent;Action: Sell")
+            logger.info(f"Agent ID: {self.id}; Action: Sell; Cards: {self._card_possession}; Balance: {self._balance}")
         else:
-            print("ID:", self.id,"The agent does not have any graphics cards to sell.")
+            logger.info(f"Agent ID: {self.id}; The agent does not have any graphics cards to sell.")
 
         return self
 
     def nothing(self):
-        print("ID:", self.id, ";AgentType:Agent;Action: Nothing")
+        logger.info(f"Agent ID: {self.id}; Action: Nothing")
         return self
 
 
@@ -85,7 +75,6 @@ class Agent(BaseAgent):
 class AgentTrend(BaseAgent):
     def evaluation_possible_options(self):
         percentage_fluctuation = self._store.get_total_fluctuation()
-        print("percentage_fluctuation", percentage_fluctuation)
         if percentage_fluctuation >= 1:
             return {
                 "options": [self.buy, self.nothing],
@@ -101,7 +90,6 @@ class AgentTrend(BaseAgent):
 class AgentAntiTrend(BaseAgent):
     def evaluation_possible_options(self):
         percentage_fluctuation = self._store.get_total_fluctuation()
-        print("percentage_fluctuation", percentage_fluctuation)
         if percentage_fluctuation <= 1:
             return {"options": [self.buy, self.nothing], "weights": [0.75, 0.25]}
         else:

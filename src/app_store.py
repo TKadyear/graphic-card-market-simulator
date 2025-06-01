@@ -1,7 +1,14 @@
 from graphic_card import GraphicCard
 
+class AppStoreMeta(type):
+    _instance = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instance:
+            instance = super().__call__(*args, **kwargs)
+            cls._instance[cls] = instance
+        return cls._instance[cls]
 
-class AppStore:
+class AppStore(metaclass=AppStoreMeta):
     _iteration: int = None
     _total_iterations: int = None
     _graphic_card: GraphicCard = None
